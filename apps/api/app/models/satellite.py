@@ -2,6 +2,7 @@ from sqlalchemy import Integer, String, DateTime, func, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
 
+
 class Satellite(Base):
     __tablename__ = "satellites"
     __table_args__ = (UniqueConstraint("norad_id", name="uq_sat_norad"),)
