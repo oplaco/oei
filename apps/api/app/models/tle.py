@@ -1,3 +1,4 @@
+from datetime import datetime
 from sqlalchemy import (
     Integer,
     String,
@@ -30,7 +31,7 @@ class TLE(Base):
     line2: Mapped[str] = mapped_column(String(80), nullable=False)
 
     # ---- Parsed (normalized) ----
-    epoch_utc: Mapped = mapped_column(DateTime(timezone=True), nullable=False)
+    epoch_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     satnum: Mapped[int] = mapped_column(Integer, nullable=False)
     intl_desg: Mapped[str | None] = mapped_column(String(11))  # e.g., YYNNNAAA
     inclination_deg: Mapped[float] = mapped_column(Numeric(7, 4), nullable=False)  # i
@@ -52,7 +53,7 @@ class TLE(Base):
     checksum_ok_l1: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     checksum_ok_l2: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     source: Mapped[str | None] = mapped_column(String(64))
-    fetched_at: Mapped = mapped_column(
+    fetched_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
 

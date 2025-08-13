@@ -4,4 +4,5 @@ from app.routers.main import all_routers
 
 app = FastAPI(title=settings.app_name)
 
-app.include_router(all_routers)
+for r in all_routers:
+    app.include_router(r)

@@ -59,6 +59,7 @@ def AbstractRepository(model: Type[TModel]):
                     stmt = stmt.limit(limit)
                 return session.execute(stmt).scalars().all()
             except Exception as e:
+                session.rollback()
                 raise CrudException(f"List failed: {e}") from e
 
         # READ ONE

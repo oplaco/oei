@@ -6,4 +6,4 @@ class Base(DeclarativeBase):
 
 
 # Import models so Alembic sees them
-from app.models import satellite, tle, aoi, pass_prediction  # noqa: E402,F401
+from app.models import satellite, tle  # noqa: E402,F401
