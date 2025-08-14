@@ -17,11 +17,8 @@ from app.db.base import Base
 class TLE(Base):
     __tablename__ = "tles"
 
-    # ---- Identity / relations ----
+    # ---- Identity ----
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    satellite_id: Mapped[int] = mapped_column(
-        ForeignKey("satellites.id", ondelete="CASCADE"), nullable=False
-    )
 
     # ---- Raw ----
     name: Mapped[str | None] = mapped_column(String(128))
@@ -57,6 +54,9 @@ class TLE(Base):
         DateTime(timezone=True), server_default=func.now()
     )
 
+    satellite_id: Mapped[int] = mapped_column(
+        ForeignKey("satellites.id", ondelete="CASCADE"), nullable=False
+    )
     satellite = relationship("Satellite", back_populates="tles")
 
     __table_args__ = (
