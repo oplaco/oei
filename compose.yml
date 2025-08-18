@@ -2,6 +2,8 @@ services:
   db:
     image: postgis/postgis:16-3.4
     container_name: oei-db
+    env_file:
+      - .env.development
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
