@@ -1,6 +1,4 @@
 from skyfield.api import EarthSatellite
-from skyfield.api import wgs84
-from skyfield.api import load
 
 
 def parse_tle_block(name: str, line1: str, line2: str) -> dict:

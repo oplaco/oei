@@ -10,7 +10,7 @@ from app.models.aoi import AOI
 aoi_router = APIRouter(prefix="/aois", tags=["AOIs"])
 
 
-@aoi_router.post("/", response_model=dict)
+@aoi_router.post("/upload", response_model=dict)
 async def upload_geojson_aoi(
     name: str = Form(...),
     file: UploadFile = File(...),
