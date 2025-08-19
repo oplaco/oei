@@ -1,6 +1,6 @@
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Depends
 from sqlalchemy.orm import Session
-from shapely.geometry import shape, MultiPolygon, Polygon
+from shapely.geometry import mapping, Polygon, shape
 from geoalchemy2.shape import from_shape
 import json
 
@@ -49,4 +49,4 @@ async def upload_geojson_aoi(
     db.commit()
     db.refresh(db_aoi)
 
-    return {"id": db_aoi.id, "name": db_aoi.name}
+    return {"id": db_aoi.id, "name": db_aoi.name, "geometry": mapping(geom)}
