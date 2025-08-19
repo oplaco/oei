@@ -1,79 +1,66 @@
-import { useState } from 'react';
+import { useState } from "react";
+import type * as GeoJSON from "geojson";
 
-interface Props {
-  onUploadSuccess: (geojson: GeoJSON.GeoJsonObject) => void;
-}
+type AoiResponse = { id: number; name: string; geometry: GeoJSON.GeoJsonObject };
+
+type Props = {
+  onUploadSuccess: (aoi: AoiResponse) => void;
+};
 
 export default function GeoJsonUploader({ onUploadSuccess }: Props) {
-  const [name, setName] = useState('');
+  const [name, setName] = useState("");
   const [file, setFile] = useState<File | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name || !file) {
-      setError('Name and GeoJSON file are required.');
-      return;
-    }
+    if (!name || !file) return setErr("Name and file are required.");
 
-    setError(null);
+    setErr(null);
     setLoading(true);
 
-    const formData = new FormData();
-    formData.append('name', name);
-    formData.append('file', file);
+    const form = new FormData();
+    form.append("name", name);
+    form.append("file", file);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/aois/upload`, {
-        method: 'POST',
-        body: formData,
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/aois/upload`, {
+        method: "POST",
+        body: form,
       });
-
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.detail || 'Upload failed.');
-      }
-
-      const data = await response.json();
-      onUploadSuccess(data.geometry);
-    } catch (err: any) {
-      setError(err.message);
+      if (!res.ok) throw new Error((await res.text()) || `HTTP ${res.status}`);
+      const data: AoiResponse = await res.json();
+      onUploadSuccess(data); // <- pass full AOI (has id + geometry)
+      setName("");
+      setFile(null);
+    } catch (e: any) {
+      setErr(e?.message ?? "Upload failed");
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-4 bg-white rounded shadow">
-      <div>
-        <label className="block mb-1 font-semibold">Name</label>
-        <input
-          type="text"
-          className="w-full border border-gray-300 p-2 rounded"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-      </div>
-
-      <div>
-        <label className="block mb-1 font-semibold">GeoJSON File</label>
-        <input
-          type="file"
-          accept=".geojson,application/json"
-          className="w-full"
-          onChange={(e) => setFile(e.target.files?.[0] || null)}
-        />
-      </div>
-
-      {error && <p className="text-red-600">{error}</p>}
-
+    <form onSubmit={submit} className="p-4 bg-white rounded shadow space-y-3">
+      <input
+        className="w-full border p-2 rounded"
+        placeholder="AOI name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+      <input
+        type="file"
+        accept=".geojson,application/json"
+        onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+      />
+      {err && <p className="text-red-600 text-sm">{err}</p>}
       <button
         type="submit"
         disabled={loading}
-        className="primaryRed text-white px-4 py-2 rounded hover:bg-red-800"
+        className="px-4 py-2 rounded bg-[#840032] text-white disabled:opacity-50"
       >
-        {loading ? 'Uploading...' : 'Upload AOI'}
+        {loading ? "Uploading…" : "Upload AOI"}
       </button>
     </form>
   );
