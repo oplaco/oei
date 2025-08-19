@@ -40,5 +40,20 @@ services:
       --port 8000
       --reload
 
+  frontend:
+    container_name: oei-frontend
+    build:
+      context: ./apps/frontend
+    env_file:
+      - ./apps/frontend/.env
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./apps/frontend:/app
+      - /app/node_modules  # avoid host node_modules conflict
+    working_dir: /app
+    command: sh -c "npm install && npm run dev"
+
+
 volumes:
   db_data:
