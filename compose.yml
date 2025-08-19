@@ -3,7 +3,7 @@ services:
     image: postgis/postgis:16-3.4
     container_name: oei-db
     env_file:
-      - .env.development
+      - .env
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -27,7 +27,7 @@ services:
       db:
         condition: service_healthy
     env_file:
-      - .env.development
+      - .env
     environment:
       DATABASE_URL: ${DATABASE_URL}
     ports:
@@ -41,19 +41,18 @@ services:
       --reload
 
   frontend:
-    container_name: oei-frontend
     build:
       context: ./apps/frontend
-    env_file:
-      - ./apps/frontend/.env
-    ports:
-      - "5173:5173"
+    container_name: oei-frontend
+    working_dir: /app
     volumes:
       - ./apps/frontend:/app
-      - /app/node_modules  # avoid host node_modules conflict
-    working_dir: /app
-    command: sh -c "npm install && npm run dev"
-
+      - /app/node_modules
+    env_file:
+      - .env 
+    command: sh -c "npm install && npm run dev:docker"
+    ports:
+      - "5173:5173"
 
 volumes:
   db_data:

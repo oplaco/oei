@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host",
+    "dev:docker": "vite --mode docker --host 0.0.0.0 --port 5173 --strictPort",
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
