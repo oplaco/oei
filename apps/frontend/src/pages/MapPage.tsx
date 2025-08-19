@@ -12,21 +12,11 @@ export default function MapPage() {
   const [passes, setPasses] = useState<any[]>([]);
 
     useEffect(() => {
-        console.log("aoiId:", aoiId, "satelliteId:", satelliteId);
     }, [aoiId, satelliteId]);
     
   return (
     <div className="min-h-screen bg-gray-100 p-6 space-y-6 text-primaryBlue">
       <h1 className="text-3xl font-bold">Satellite Pass Demo</h1>
-
-      {/* If your uploader returns { id, geometry }, this handles both cases */}
-      <GeoJsonUploader
-        onUploadSuccess={(res: any) => {
-          const geom = res?.geometry ?? res; // support old shape
-          setGeojson(geom);
-          if (res?.id) setAoiId(res.id);
-        }}
-      />
       <GeoJsonUploader
         onUploadSuccess={(aoi: { id: number; geometry: GeoJSON.GeoJsonObject }) => {
             setGeojson(aoi.geometry);
@@ -45,7 +35,10 @@ export default function MapPage() {
         onResults={(r) => setPasses(r)}
       />
 
-      <MapViewer geojsonData={geojson} />
+      <MapViewer
+        geojsonData={geojson}
+        tracks={passes.map(p => p.track_geojson)}
+        />
 
       {/* Optional tiny list */}
       {passes.length > 0 && (

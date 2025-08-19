@@ -11,7 +11,7 @@ export default function TleIngestCard() {
     setStatus("sending");
     setMessage("");
     try {
-      const res = await fetch(`${API_BASE}/ingest`, {
+      const res = await fetch(`${API_BASE}/tles/ingest`, {
         method: "POST",
         headers: { "Content-Type": "text/plain" },
         body: text.trim(),

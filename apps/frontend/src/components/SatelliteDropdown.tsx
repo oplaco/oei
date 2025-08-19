@@ -10,7 +10,7 @@ type Props = {
   onSelect?: (sat: Satellite | null) => void;
 };
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL as string; 
+const API_BASE = import.meta.env.VITE_API_BASE_URL as string;
 export default function SatelliteDropdown({ onSelect }: Props) {
   const [sats, setSats] = useState<Satellite[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,10 +35,12 @@ export default function SatelliteDropdown({ onSelect }: Props) {
     }
 
     load();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  const selected = sats.find(s => String(s.id) === selId) ?? null;
+  const selected = sats.find((s) => String(s.id) === selId) ?? null;
 
   return (
     <div className="rounded shadow bg-white p-4">
@@ -53,13 +55,14 @@ export default function SatelliteDropdown({ onSelect }: Props) {
           onChange={(e) => {
             const id = e.target.value;
             setSelId(id);
-            onSelect?.(sats.find(s => String(s.id) === id) ?? null);
+            onSelect?.(sats.find((s) => String(s.id) === id) ?? null);
           }}
         >
           <option value="">— choose —</option>
           {sats.map((s) => (
             <option key={s.id} value={s.id}>
-              {s.name}{s.norad_id ? ` (NORAD ${s.norad_id})` : ""}
+              {s.name}
+              {s.norad_id ? ` (NORAD ${s.norad_id})` : ""}
             </option>
           ))}
         </select>

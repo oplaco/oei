@@ -1,49 +1,55 @@
+// src/components/MapViewer.tsx
 import { MapContainer, TileLayer, GeoJSON, useMap } from "react-leaflet";
+import type * as GeoJSONTypes from "geojson";
+import { useEffect } from "react";
 import "leaflet/dist/leaflet.css";
-import { useEffect, useRef } from "react";
 
-type MapViewerProps = {
-  geojsonData: GeoJSON.GeoJsonObject | null;
+type Props = {
+  geojsonData: GeoJSONTypes.GeoJsonObject | null; // AOI
+  tracks?: GeoJSONTypes.LineString[]; // pass tracks
 };
 
-function InvalidateOnResize({ observe }: { observe: Element | null }) {
+function FitOnData({ aoi, tracks }: { aoi: any; tracks?: any[] }) {
   const map = useMap();
-
   useEffect(() => {
-    if (!observe) return;
-    const ro = new ResizeObserver(() => {
-      map.invalidateSize();
-    });
-    ro.observe(observe);
-    // initial kick (in case parent starts collapsed/zero height)
-    setTimeout(() => map.invalidateSize(), 0);
-    return () => ro.disconnect();
-  }, [map, observe]);
-
+    const layers: any[] = [];
+    if (aoi) layers.push(aoi);
+    tracks?.forEach((t) => layers.push(t));
+    if (!layers.length) return;
+    // Build a tiny FeatureCollection to get bounds
+    const fc = {
+      type: "FeatureCollection",
+      features: layers.map((g) => ({ type: "Feature", properties: {}, geometry: g })),
+    };
+    // @ts-ignore leaflet GeoJSON has getBounds via addData
+    const gj = L.geoJSON(fc);
+    map.fitBounds(gj.getBounds(), { padding: [20, 20] });
+  }, [aoi, tracks, map]);
   return null;
 }
 
-export default function MapViewer({ geojsonData }: MapViewerProps) {
-  const wrapperRef = useRef<HTMLDivElement | null>(null);
-
+export default function MapViewer({ geojsonData, tracks = [] }: Props) {
   return (
-    // Parent with explicit height
-    <div ref={wrapperRef} className="h-[500px] w-full rounded shadow overflow-hidden">
-      <MapContainer
-        center={[0, 0]}
-        zoom={2}
-        scrollWheelZoom
-        className="h-full w-full"        // fill the parent
-        style={{ height: "100%", width: "100%" }} // (defensive)
-      >
-        <InvalidateOnResize observe={wrapperRef.current} />
+    <div className="h-[500px] w-full rounded shadow overflow-hidden">
+      <MapContainer center={[0, 0]} zoom={2} scrollWheelZoom className="h-full w-full">
+        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        <FitOnData aoi={geojsonData} tracks={tracks} />
 
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution="&copy; OpenStreetMap contributors"
-        />
+        {geojsonData && <GeoJSON data={geojsonData} style={{ color: "#840032", weight: 2 }} />}
 
-        {geojsonData && <GeoJSON data={geojsonData} />}
+        {tracks.map((line, i) => (
+          <GeoJSON
+            key={i}
+            data={
+              {
+                type: "Feature",
+                geometry: line,
+                properties: {},
+              } as GeoJSON.Feature<GeoJSON.LineString>
+            }
+            style={{ color: "#ff0000 ", weight: 3 }}
+          />
+        ))}
       </MapContainer>
     </div>
   );
