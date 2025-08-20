@@ -30,12 +30,18 @@ function FitOnData({ aoi, tracks }: { aoi: any; tracks?: any[] }) {
 
 export default function MapViewer({ geojsonData, tracks = [] }: Props) {
   return (
-    <div className="h-[500px] w-full rounded shadow overflow-hidden">
+    <div className="h-full w-full rounded shadow overflow-hidden">
       <MapContainer center={[0, 0]} zoom={2} scrollWheelZoom className="h-full w-full">
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <FitOnData aoi={geojsonData} tracks={tracks} />
 
-        {geojsonData && <GeoJSON data={geojsonData} style={{ color: "#840032", weight: 2 }} />}
+        {geojsonData && (
+          <GeoJSON
+            key={JSON.stringify(geojsonData)} // To force remount if content changes
+            data={geojsonData}
+            style={{ color: "red", weight: 2 }}
+          />
+        )}
 
         {tracks.map((line, i) => (
           <GeoJSON
@@ -47,7 +53,7 @@ export default function MapViewer({ geojsonData, tracks = [] }: Props) {
                 properties: {},
               } as GeoJSON.Feature<GeoJSON.LineString>
             }
-            style={{ color: "#ff0000 ", weight: 3 }}
+            style={{ color: "red ", weight: 3 }}
           />
         ))}
       </MapContainer>

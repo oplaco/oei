@@ -11,7 +11,7 @@ export default function LandingCard() {
         from space with unprecedented clarity.
       </p>
       <button
-        className="bg-primary-red hover:bg-red-800 text-white font-bold py-2 px-6 rounded transition"
+        className="bg-primary-red-500 hover:bg-red-800 text-white font-bold py-2 px-6 rounded transition"
         onClick={() => navigate("/map")}
       >
         Try Demo

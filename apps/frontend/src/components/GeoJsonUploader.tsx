@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type * as GeoJSON from "geojson";
 import ActionButton from "./ActionButton";
 
@@ -13,6 +13,7 @@ export default function GeoJsonUploader({ onUploadSuccess }: Props) {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null); // browser does not triger onChange if same file is selected again.
 
   async function submit() {
     if (!name || !file) return setErr("Name and file are required.");
@@ -36,6 +37,7 @@ export default function GeoJsonUploader({ onUploadSuccess }: Props) {
       onUploadSuccess(data);
       setName("");
       setFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = ""; // <-- reset file input
     } catch (e: any) {
       setErr(e?.message ?? "Upload failed");
     } finally {
@@ -53,6 +55,7 @@ export default function GeoJsonUploader({ onUploadSuccess }: Props) {
       />
       <input
         type="file"
+        ref={fileInputRef}
         accept=".geojson,application/json"
         onChange={(e) => setFile(e.target.files?.[0] ?? null)}
       />
