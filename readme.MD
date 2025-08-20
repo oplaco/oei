@@ -31,7 +31,7 @@ Navigate to the project root and start the services:
 docker-compose up --build
 ```
 
-This builds and starts three services:
+This builds and starts three services (please make sure all the ports are free otherwise it might not work):
 1. PostgreSQL: with PostGIS, available on port 5432
 2. api: FastAPI backend, accessible at http://localhost:8000
 3. frontend: React + Vite frontend, accessible at http://localhost:5173
@@ -43,7 +43,7 @@ After the containers are running, apply the database migrations inside the `api`
 docker-compose exec api alembic upgrade head
 ```
 
-## Environment Configuration
+## Environment configuration
 - Create root-level .env file (used by Docker compose)
 
 ```
@@ -63,3 +63,20 @@ VITE_API_BASE_URL=http://localhost:8000
 ```bash
 docker-compose down
 ```
+
+## Frontend usage
+
+Once all the services are up an running access the frontend. The frontend consists of two main pages::
+- Landing Page. 
+    - A minimal introductory page representing the company website.
+    - In a real-world scenario, this page would present your brand, products, or vision.
+    - You can navigate to the main application by clicking the "Try Demo" button.
+- Map Page. This is the core of the application. It is divided into two main sections:
+    - Left column. Contains:
+        - Area of Interest (AOI) upload. Upload a polygon (in GeoJSON format) with a custom name.
+        - Satellite selection. Use the dropdown to select a satellite from those already available in the system. The selected satellite will be used for pass prediction.
+        - TLE input. Paste one or more TLE (Two-Line Element) messages to register new satellites. These are immediately available for selection.
+        - Pass computation. Once an AOI and a satellite are selected, you can compute orbital passes (visibility windows).
+    - Righ column. Map Viewer.
+        - An interactive map built with Leaflet.
+        - Automatically zooms to relevant geometry upon uploads or pass computation.
