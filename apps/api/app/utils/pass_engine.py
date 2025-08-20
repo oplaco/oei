@@ -4,6 +4,8 @@ from datetime import datetime, timedelta, timezone
 from shapely.geometry import LineString, mapping, shape
 from skyfield.api import EarthSatellite, load, wgs84
 
+from app.schemas.orbital_pass import PassComputeResult
+
 
 def create_satellite_from_tle(tle) -> EarthSatellite:
     return EarthSatellite(tle.line1, tle.line2, tle.name or "SAT", load.timescale())
@@ -51,7 +53,7 @@ def find_pass_windows(times, elevations, threshold_deg=10.0):
     return intervals
 
 
-def extract_pass_data(times, subpoints, elevations, interval, srid=4326):
+def extract_pass_data(times, subpoints, elevations, interval) -> PassComputeResult:
     start_idx, end_idx = interval
     start_time = times[start_idx].utc_datetime().replace(tzinfo=timezone.utc)
     end_time = times[end_idx].utc_datetime().replace(tzinfo=timezone.utc)
@@ -66,13 +68,13 @@ def extract_pass_data(times, subpoints, elevations, interval, srid=4326):
     ]
     track_geojson = mapping(LineString(track))
 
-    return {
-        "start_time": start_time,
-        "end_time": end_time,
-        "max_elevation_deg": max_elevation,
-        "max_elevation_time": max_time,
-        "track_geojson": track_geojson,
-    }
+    return PassComputeResult(
+        start_time=start_time,
+        end_time=end_time,
+        max_elevation_deg=max_elevation,
+        max_elevation_time=max_time,
+        track_geojson=track_geojson,
+    )
 
 
 def compute_passes_over_aoi(tle, aoi_geometry, window, min_elevation_deg=10.0):

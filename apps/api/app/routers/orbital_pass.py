@@ -9,6 +9,10 @@ from app.models.aoi import AOI
 from app.models.satellite import Satellite
 from app.schemas.orbital_pass import PassComputeRequest, PassComputeResult
 from app.utils.pass_engine import compute_passes_over_aoi
+from geoalchemy2.shape import from_shape
+from shapely.geometry import LineString
+from app.models.orbital_pass import OrbitalPass
+
 
 orbital_pass_router = APIRouter(prefix="/passes", tags=["orbital_passes"])
 
@@ -48,6 +52,25 @@ def compute_passes(
             window=req.window,
             min_elevation_deg=req.min_elevation_deg,
         )
+
+        for p in passes:
+            track_line = LineString(p.track_geojson["coordinates"])
+
+            pass_record = OrbitalPass(
+                satellite_id=req.satellite_id,
+                aoi_id=req.aoi_id,
+                tle_id=tle.id,
+                start_time=p.start_time,
+                end_time=p.end_time,
+                max_elevation_deg=p.max_elevation_deg,
+                max_elevation_time=p.max_elevation_time,
+                min_elevation_deg=req.min_elevation_deg,
+                track_geom=from_shape(track_line, srid=4326),
+            )
+
+            db.add(pass_record)
+
+        db.commit()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Pass computation failed: {e}")
 
