@@ -37,7 +37,7 @@ export default function MapViewer({ geojsonData, tracks = [] }: Props) {
 
         {geojsonData && (
           <GeoJSON
-            key={JSON.stringify(geojsonData)} // To force remount if content changes
+            key={JSON.stringify(geojsonData)} // To force layer remount if content changes
             data={geojsonData}
             style={{ color: "red", weight: 2 }}
           />
@@ -45,7 +45,7 @@ export default function MapViewer({ geojsonData, tracks = [] }: Props) {
 
         {tracks.map((line, i) => (
           <GeoJSON
-            key={i}
+            key={JSON.stringify(line)} // To force layer remount if content changes
             data={
               {
                 type: "Feature",

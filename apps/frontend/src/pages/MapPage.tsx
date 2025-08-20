@@ -28,7 +28,12 @@ export default function MapPage() {
 
         <TleIngestCard />
 
-        <PassCompute satelliteId={satelliteId} aoiId={aoiId} onResults={(r) => setPasses(r)} />
+        <PassCompute
+          satelliteId={satelliteId}
+          aoiId={aoiId}
+          onResults={(r) => setPasses(r)}
+          results={passes}
+        />
       </div>
 
       {/* RIGHT COLUMN */}
