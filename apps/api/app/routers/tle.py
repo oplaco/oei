@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Body, Depends, HTTPException
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
+
 
 from app.db.session import get_db
 from app.models.satellite import Satellite
@@ -47,8 +49,15 @@ def add_ingest_endpoint(router: APIRouter):
             # tle_data["source"] Source of the data
             parsed_tles.append(TLE(**tle_data))
 
-        db.add_all(parsed_tles)
-        db.commit()
+        try:
+            db.add_all(parsed_tles)
+            db.commit()
+        except IntegrityError as e:
+            db.rollback()
+            raise HTTPException(
+                status_code=400,
+                detail="One or multiple TLEs message already exist in the database.",
+            )
 
         return {
             "message": f"{len(parsed_tles)} TLEs ingested successfully.",
