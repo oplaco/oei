@@ -1,7 +1,6 @@
 @import "tailwindcss";
 
-html, body, #root {
-  margin: 0;
-  padding: 0;
-  height: 100%;
+@theme {
+  --color-primary-red: #840032;
+  --color-primary-blue: #002642;
 }
