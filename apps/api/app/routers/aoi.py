@@ -24,7 +24,7 @@ async def upload_geojson_aoi(
         if geojson_data.get("type") == "FeatureCollection":
             features = geojson_data.get("features", [])
             if len(features) != 1:
-                raise ValueError("Only one Feature is allowed.")
+                raise ValueError("Only one Feature per file is allowed.")
             geometry_data = features[0]["geometry"]
 
         elif geojson_data.get("type") == "Feature":
@@ -42,11 +42,17 @@ async def upload_geojson_aoi(
             raise ValueError("Only GeoJSON Polygons are supported.")
 
     except Exception as e:
-        raise HTTPException(400, detail=f"Invalid GeoJSON file: {e}")
+        raise HTTPException(400, detail=f"Internal error ingesting geojson file: {e}")
 
-    db_aoi = AOI(name=name, geometry=from_shape(geom, srid=4326))
-    db.add(db_aoi)
-    db.commit()
-    db.refresh(db_aoi)
+    try:
+        db_aoi = AOI(name=name, geometry=from_shape(geom, srid=4326))
+        db.add(db_aoi)
+        db.commit()
+        db.refresh(db_aoi)
+    except Exception as e:
+        raise HTTPException(
+            400,
+            detail=f"Error saving geojson file to the database. Please, try again later.",
+        )
 
     return {"id": db_aoi.id, "name": db_aoi.name, "geometry": mapping(geom)}

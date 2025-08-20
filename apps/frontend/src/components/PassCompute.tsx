@@ -1,4 +1,5 @@
 import { useState } from "react";
+import ActionButton from "./ActionButton";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL as string;
 
@@ -53,13 +54,14 @@ export default function PassComputeCard({ satelliteId, aoiId, onResults }: Props
   return (
     <div className="rounded shadow bg-white p-4">
       <h2 className="text-xl font-semibold mb-3">Compute Passes</h2>
-      <button
-        className="block w-full px-4 py-2 mb-4 rounded bg-primary-blue text-white disabled:opacity-50"
-        disabled={!satelliteId || !aoiId || loading}
+
+      <ActionButton
         onClick={compute}
-      >
-        {loading ? "Computing…" : "Compute"}
-      </button>
+        disabled={!satelliteId || !aoiId}
+        loading={loading}
+        label="Compute"
+        loadingLabel="Computing…"
+      />
 
       {passes.length > 0 && (
         <div className="mt-4 overflow-x-auto">

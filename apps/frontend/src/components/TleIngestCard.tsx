@@ -1,10 +1,11 @@
 import { useState } from "react";
+import ActionButton from "./ActionButton";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL as string;
 
 export default function TleIngestCard() {
   const [text, setText] = useState("");
-  const [status, setStatus] = useState<null | "idle" | "sending" | "ok" | "error">(null);
+  const [status, setStatus] = useState<"idle" | "sending" | "ok" | "error">("idle");
   const [message, setMessage] = useState<string>("");
 
   async function submit() {
@@ -41,17 +42,15 @@ export default function TleIngestCard() {
         onChange={(e) => setText(e.target.value)}
       />
 
-      <div className="mt-3 flex items-center gap-3">
-        <button
-          onClick={submit}
-          disabled={!text.trim() || status === "sending"}
-          className="px-4 py-2 rounded bg-primary-blue text-white disabled:opacity-50"
-        >
-          {status === "sending" ? "Uploading…" : "Upload"}
-        </button>
-        {status === "ok" && <span className="text-green-600 text-sm">{message}</span>}
-        {status === "error" && <span className="text-red-600 text-sm">{message}</span>}
-      </div>
+      <ActionButton
+        onClick={submit}
+        disabled={!text.trim()}
+        loading={status === "sending"}
+        label="Upload"
+        loadingLabel="Uploading…"
+        status={status}
+        message={message}
+      />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type * as GeoJSON from "geojson";
+import ActionButton from "./ActionButton";
 
 type AoiResponse = { id: number; name: string; geometry: GeoJSON.GeoJsonObject };
 
@@ -13,8 +14,7 @@ export default function GeoJsonUploader({ onUploadSuccess }: Props) {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
+  async function submit() {
     if (!name || !file) return setErr("Name and file are required.");
 
     setErr(null);
@@ -29,9 +29,11 @@ export default function GeoJsonUploader({ onUploadSuccess }: Props) {
         method: "POST",
         body: form,
       });
+
       if (!res.ok) throw new Error((await res.text()) || `HTTP ${res.status}`);
       const data: AoiResponse = await res.json();
-      onUploadSuccess(data); // <- pass full AOI (has id + geometry)
+
+      onUploadSuccess(data);
       setName("");
       setFile(null);
     } catch (e: any) {
@@ -42,7 +44,7 @@ export default function GeoJsonUploader({ onUploadSuccess }: Props) {
   }
 
   return (
-    <form onSubmit={submit} className="p-4 bg-white rounded shadow space-y-3">
+    <div className="p-4 bg-white rounded shadow space-y-3">
       <input
         className="w-full border p-2 rounded"
         placeholder="AOI name"
@@ -54,14 +56,15 @@ export default function GeoJsonUploader({ onUploadSuccess }: Props) {
         accept=".geojson,application/json"
         onChange={(e) => setFile(e.target.files?.[0] ?? null)}
       />
-      {err && <p className="text-red-600 text-sm">{err}</p>}
-      <button
-        type="submit"
+      <ActionButton
+        onClick={submit}
         disabled={loading}
-        className="px-4 py-2 rounded bg-primary-blue text-white disabled:opacity-50"
-      >
-        {loading ? "Uploading…" : "Upload AOI"}
-      </button>
-    </form>
+        loading={loading}
+        label="Upload AOI"
+        loadingLabel="Uploading…"
+        status={err ? "error" : undefined}
+        message={err ?? undefined}
+      />
+    </div>
   );
 }
